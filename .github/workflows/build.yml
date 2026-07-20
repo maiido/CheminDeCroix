@@ -19,11 +19,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            args: --linux AppImage
+            script: build:linux
           - os: windows-latest
-            args: --win
+            script: build:win
           - os: macos-latest
-            args: --mac
+            script: build:mac
 
     steps:
       - name: Checkout
@@ -44,15 +44,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build sources
-        run: npm run electron:build
-
-      - name: Package with electron-builder
-        run: npx --no-install electron-builder ${{ matrix.args }} --publish never
-
-      - name: Add macOS readme
-        if: runner.os == 'macOS'
-        run: bash scripts/add-mac-readme.sh
+      - name: Build and package
+        run: npm run ${{ matrix.script }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
