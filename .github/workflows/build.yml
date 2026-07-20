@@ -21,10 +21,16 @@ jobs:
         include:
           - os: ubuntu-latest
             script: build:linux
+            artifact: chemindecroix-ubuntu
           - os: windows-latest
             script: build:win
+            artifact: chemindecroix-windows
           - os: macos-latest
-            script: build:mac
+            script: build:mac-x64
+            artifact: chemindecroix-macos-x64
+          - os: macos-latest
+            script: build:mac-arm64
+            artifact: chemindecroix-macos-arm64
 
     steps:
       - name: Checkout
@@ -51,7 +57,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: chemindecroix-${{ matrix.os }}
+          name: ${{ matrix.artifact }}
           path: release/*
           if-no-files-found: error
 

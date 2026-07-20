@@ -14,6 +14,8 @@
     "rebuild:native": "electron-rebuild -f -w better-sqlite3",
     "build:win": "npm run electron:build && electron-builder --win --publish never",
     "build:mac": "npm run electron:build && electron-builder --mac --publish never && bash scripts/add-mac-readme.sh",
+    "build:mac-x64": "npm run electron:build && electron-builder --mac --x64 --publish never && bash scripts/add-mac-readme.sh",
+    "build:mac-arm64": "npm run electron:build && electron-builder --mac --arm64 --publish never && bash scripts/add-mac-readme.sh",
     "build:linux": "npm run electron:build && electron-builder --linux AppImage --publish never",
     "postinstall": "electron-rebuild -f -w better-sqlite3"
   },
