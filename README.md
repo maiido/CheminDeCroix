@@ -127,7 +127,51 @@ Puis relancez `npm run electron:dev`.
 - **Gestion des enfants** : CRUD complet, dates d'entrée/sortie, couleurs automatiques
 - **Export Excel** : onglet récap mensuel (total par enfant) + onglet détaillé par enfant
 - **Documentation intégrée** : chemin BDD, statistiques, remise à zéro
+- **Import par image (IA)** : décode une feuille de présence photographiée via OpenAI / OpenRouter
 - **Fenêtre frameless** avec barre de titre custom
+
+## Import par image (IA)
+
+L'application peut importer automatiquement les présences depuis une feuille papier scannée ou photographiée. Le fichier `modèle.jpg` à la racine du dépôt est un modèle que vous pouvez adapter et remplir à la main.
+
+### Principe
+
+1. Sélectionnez la semaine concernée dans le calendrier.
+2. Cliquez sur **📷 Importer image** dans la vue tableau hebdomadaire.
+3. Choisissez la photo ou le scan de la feuille.
+4. L'application envoie l'image à un modèle de langage avec vision (OpenAI / OpenRouter), accompagnée de la liste des enfants et des 5 dates de la semaine.
+5. L'IA extrait les marquages manuscrits (croix `X`, traits continus, etc.) et renvoie un JSON structuré avec, pour chaque enfant et chaque jour, les heures d'arrivée et de départ. Attention, elle peut alluciner.
+6. Un aperçu des résultats s'affiche ; vous validez avant application.
+
+### Format attendu de la feuille
+
+- 5 colonnes, une par jour de la semaine (lundi, mardi, mercredi, jeudi, vendredi).
+- Des lignes d'horaires découpées en créneaux (par défaut des demi-heures, ex. 07h30-08h00, 08h00-08h30, etc.).
+- Une présence est indiquée par des croix `X`, un trait horizontal continu ou un trait vertical clair.
+- Une absence doit être marquée par une grande croix diagonale couvrant toute la colonne du jour.
+- Si un début ou une fin n'est pas clair, l'IA omettra le jour concerné plutôt que de deviner.
+
+### Configuration IA
+
+Rendez-vous dans l'onglet **Documentation > Paramètres IA** de l'application :
+
+| Paramètre | Description | Valeur par défaut |
+|---|---|---|
+| **Clé API** | Clé OpenAI (`sk-...`) ou OpenRouter (`sk-or-...`). Stockée localement dans SQLite. | — |
+| **Endpoint API** | URL de base de l'API, sans `/chat/completions`. | `https://api.openai.com/v1` |
+| **Modèle** | Modèle compatible vision. | `gpt-4o` |
+| **Niveau de raisonnement** | Raisonnement étendu (`low`, `medium`, `high`) si le modèle le supporte. | `none` |
+
+- Si la clé commence par `sk-or-`, l'endpoint passe automatiquement sur `https://openrouter.ai/api/v1`.
+- Les images sont envoyées au fournisseur d'IA choisi. Assurez-vous d'accepter les conditions de confidentialité correspondantes.
+
+### Conseils et limites
+
+- Formats supportés : **JPEG**, **PNG**, **WebP**.
+- Prenez la photo dans une lumière suffisante, de face et sans reflet.
+- L'IA ne complète jamais une information ambiguë : un jour manquant ou illisible sera ignoré. (ou pas)
+- En cas de réponse tronquée (`finish_reason: length`), réduisez le nombre d'enfants sur la feuille ou utilisez un modèle avec une plus grande fenêtre de sortie.
+- Si le JSON retourné est invalide, la réponse brute de l'IA est affichée pour faciliter le diagnostic.
 
 ## Base de données
 
